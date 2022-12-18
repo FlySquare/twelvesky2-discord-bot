@@ -13,6 +13,6 @@ module.exports = async (client) => {
     console.error(error);
   }
 
-    console.log(`${client.user.tag} Aktif!`);
-    console.log(`${client.user.tag} created/developed by Akiserius`);
+    console.log(`${client.user.tag} Ready!`);
+    console.log(`${client.user.tag} created by FlySquare`);
 };

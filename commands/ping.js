@@ -7,12 +7,6 @@ module.exports = {
   options: [],
 
   run: async(client, interaction) => {
-
-    const { user, guildId, channel } = interaction;
-
-
-    interaction.reply({ embeds: [ new EmbedBuilder().setDescription(`Pong! ***${client.ws.ping}ms***`) ], ephemeral: true })
-
+    interaction.reply({ embeds: [ new EmbedBuilder().setDescription(`Created by <@375624283331887104> | Server Ping: ***${client.ws.ping}ms***`) ], ephemeral: true })
   }
-
 };

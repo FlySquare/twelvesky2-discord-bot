@@ -10,8 +10,8 @@ const client = new Client({
     retryLimit: 3
 });
 const fs = require('fs');
-const warChannelId = 'ChannelId';
-const warTimeFileName = 'FileLocation';
+const warChannelId = '1054060249985863840';
+const warTimeFileName = 'C:/warTime.txt';
 
 global.client = client;
 client.commands = (global.commands = []);

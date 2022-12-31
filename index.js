@@ -3,15 +3,21 @@ const INTENTS = Object.values(GatewayIntentBits);
 const PARTIALS = Object.values(Partials);
 const client = new Client({
     intents: INTENTS,
+    disableEveryone: false,
     allowedMentions: {
-        parse: ["users"]
+        parse: ["users", "roles", "everyone"],
     },
     partials: PARTIALS,
     retryLimit: 3
 });
 const fs = require('fs');
 const warChannelId = '1054060249985863840';
-const warTimeFileName = 'C:/warTime.txt';
+var dateObj = new Date();
+dateObj.setHours(dateObj.getHours() + 3);
+var month = dateObj.getUTCMonth() + 1; //months from 1-12
+var day = dateObj.getUTCDate();
+var year = dateObj.getUTCFullYear();
+let warTimeFileName = 'C:/Sky2/LOG/WAR_LOG_' + year + '-' + month + '-' + day + '.TXT';
 const readline = require('readline');
 global.client = client;
 client.commands = (global.commands = []);
@@ -43,6 +49,13 @@ client.login(TOKEN).then(app => {
         status: 'Online',
     });
     setInterval(() => {
+        var dateObj = new Date();
+        dateObj.setHours(dateObj.getHours() + 3);
+        var month = dateObj.getUTCMonth() + 1; //months from 1-12
+        var day = dateObj.getUTCDate();
+        var year = dateObj.getUTCFullYear();
+        warTimeFileName = 'C:/Sky2/LOG/WAR_LOG_' + year + '-' + month + '-' + day + '.TXT';
+        console.log(dateObj);
         if (fs.existsSync(warTimeFileName)) {
             processLineByLine();
         }
@@ -54,32 +67,51 @@ client.login(TOKEN).then(app => {
 
 
 async function processLineByLine() {
-    const fileStream = fs.createReadStream(warTimeFileName);
-    const rl = readline.createInterface({
-        input: fileStream,
-        crlfDelay: Infinity
-    });
-    for await (const line of rl) {
-        if (line.indexOf("[[295]]") != "-1") {
-            if (line.indexOf("(10)") != "-1") {
-                sendMessage(10);
-            } else if (line.indexOf("(5)") != "-1") {
-                sendMessage(5);
-            } else if (line.indexOf("(1)") != "-1") {
-                sendMessage(1);
+    if (fs.existsSync(warTimeFileName)) {
+        const fileStream = fs.createReadStream(warTimeFileName);
+        const rl = readline.createInterface({
+            input: fileStream,
+            crlfDelay: Infinity
+        });
+        for await (const line of rl) {
+            if (line.indexOf("[[295]]") != "-1") {
+                if (line.indexOf("(10)") != "-1") {
+                    sendMessage(10);
+                    fileStream.destroy();
+                    break;
+                } else if (line.indexOf("(5)") != "-1") {
+                    sendMessage(5);
+                    fileStream.destroy();
+                    break;
+                } else if (line.indexOf("(1)") != "-1") {
+                    sendMessage(1);
+                    fileStream.destroy();
+                    setTimeout(() => {
+                        clearAllChat();
+                    },1000 * 60 * 10);
+                    break;
+                }
             }
         }
     }
 }
 
+async function clearAllChat() {
+    client.channels.fetch(warChannelId).then((channel) => {
+        channel.bulkDelete(100);
+    });
+}
+
 async function sendMessage(minute = 10) {
     client.channels.fetch(warChannelId).then((channel) => {
-        channel.send(`@everyone |
+        channel.send(`@everyone		|
                  [:flag_us:] War will start in ${minute} min!
                  [:flag_tr:] Savaş ${minute} dakika içerisinde başlayacak!
                  [:flag_mc:] Pertempuran akan dimulai dalam ${minute} menit!
                  [:flag_th: ] การต่อสู้จะเริ่มในอีก ${minute} นาที!
                  `);
     });
-    fs.unlinkSync(warTimeFileName);
+    if (fs.existsSync(warTimeFileName)) {
+        fs.unlinkSync(warTimeFileName);
+    }
 }
